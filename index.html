@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Aviator Intel</title>
+
+<style>
+
+*{box-sizing:border-box}
+
+body{margin:0;background:#090e18;color:white;font-family:Arial;padding:20px}
+
+header{text-align:center;padding:20px}
+
+h1{color:#35e58b}
+
+.sub{color:#9aa8bb;font-size:13px}
+
+.card{background:#151f30;border:1px solid #26364b;border-radius:15px;padding:18px;margin:15px 0}
+
+h2{font-size:17px;color:#35e58b}
+
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+.stat{background:#101a29;padding:15px;border-radius:12px}
+
+.stat span{color:#9aa8bb;font-size:12px}
+
+.stat strong{display:block;font-size:25px;margin-top:8px}
+
+input{width:100%;padding:15px;border-radius:9px;border:1px solid #35465d;background:#0c1523;color:white;font-size:18px;margin:10px 0}
+
+button{border:0;border-radius:9px;padding:14px;background:#24d981;color:#07150e;font-weight:bold;font-size:15px}
+
+.full{width:100%}
+
+.secondary{background:#27364a;color:white}
+
+.history{display:flex;flex-wrap:wrap;gap:8px}
+
+.result{background:#26364b;padding:10px 14px;border-radius:8px;font-weight:bold}
+
+.green{color:#39e990}
+
+.red{color:#ff6877}
+
+.notice{color:#aab6c7;font-size:12px;line-height:1.6}
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+
+<h1>✈️ AVIATOR INTEL</h1>
+
+<p class="sub">AVIATOR STATISTICS DASHBOARD</p>
+
+</header>
+
+<div class="card">
+
+<h2>Multiplier Analysis</h2>
+
+<div class="stats">
+
+<div class="stat"><span>Total rounds</span><strong id="total">0</strong></div>
+
+<div class="stat"><span>Average</span><strong id="average">0.00x</strong></div>
+
+<div class="stat"><span>Highest result</span><strong id="highest">0.00x</strong></div>
+
+<div class="stat"><span>Results 2x or above</span><strong id="above">0%</strong></div>
+
+</div>
+
+</div>
+
+<div class="card">
+
+<h2>Add Aviator Result</h2>
+
+<p class="sub">Enter a multiplier from your game history.</p>
+
+<input id="multiplier" type="number" placeholder="Example: 2.45" min="1" step="0.01">
+
+<button class="full" onclick="addResult()">ADD RESULT</button>
+
+</div>
+
+<div class="card">
+
+<h2>Recent Results</h2>
+
+<div id="history" class="history">
+
+<p class="sub">No results entered yet.</p>
+
+</div>
+
+</div>
+
+<div class="card">
+
+<h2>Analysis</h2>
+
+<p id="analysis" class="notice">Enter results to see your statistics.</p>
+
+</div>
+
+<div class="card">
+
+<h2>Manage Data</h2>
+
+<button class="secondary full" onclick="clearHistory()">CLEAR HISTORY</button>
+
+</div>
+
+<p class="notice">IMPORTANT: Aviator outcomes are random. Historical results cannot reliably predict the next round. This app provides statistical analysis, not guaranteed winning signals.</p>
+
+<script>
+
+let results=[];
+
+try{
+
+results=JSON.parse(localStorage.getItem("aviatorResults"))||[];
+
+if(!Array.isArray(results))results=[];
+
+}catch(e){results=[];}
+
+function addResult(){
+
+const input=document.getElementById("multiplier");
+
+const value=Number(input.value);
+
+if(!input.value||!Number.isFinite(value)||value<1){
+
+alert("Enter a valid multiplier of at least 1.00");
+
+return;
+
+}
+
+results.unshift(value);
+
+localStorage.setItem("aviatorResults",JSON.stringify(results));
+
+input.value="";
+
+update();
+
+}
+
+function clearHistory(){
+
+if(confirm("Delete all saved results?")){
+
+results=[];
+
+localStorage.removeItem("aviatorResults");
+
+update();
+
+}
+
+}
+
+function update(){
+
+const total=results.length;
+
+const average=total?results.reduce((a,b)=>a+b,0)/total:0;
+
+const highest=total?Math.max(...results):0;
+
+const above=total?results.filter(x=>x>=2).length/total*100:0;
+
+document.getElementById("total").textContent=total;
+
+document.getElementById("average").textContent=average.toFixed(2)+"x";
+
+document.getElementById("highest").textContent=highest.toFixed(2)+"x";
+
+document.getElementById("above").textContent=above.toFixed(1)+"%";
+
+document.getElementById("history").innerHTML=total?
+
+results.slice(0,40).map(x=>'<span class="result '+(x>=2?'green':'red')+'">'+x.toFixed(2)+'x</span>').join("")
+
+:'<p class="sub">No results entered yet.</p>';
+
+document.getElementById("analysis").textContent=total?
+
+"You recorded "+total+" rounds. "+above.toFixed(1)+"% were 2.00x or higher. These figures describe past results only."
+
+:"Enter results to see your statistics.";
+
+}
+
+update();
+
+</script>
+
+</body>
+
+</html>
